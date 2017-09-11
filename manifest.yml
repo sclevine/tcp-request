@@ -1,0 +1,2 @@
+env:
+  GOPACKAGENAME: github.com/sclevine/router-test
