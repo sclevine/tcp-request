@@ -6,10 +6,6 @@ import (
 	"os"
 )
 
-// This app dumps raw TCP requests to the logs.
-// All requests fail with a 502 from gorouter, because it's a raw TCP listener.
-// Contact: slevine@pivotal.io
-
 func main() {
 	l, err := net.Listen("tcp", ":"+os.Getenv("PORT"))
 	if err != nil {
