@@ -1,2 +1,2 @@
 env:
-  GOPACKAGENAME: github.com/sclevine/router-test
+  GOPACKAGENAME: github.com/sclevine/tcp-request

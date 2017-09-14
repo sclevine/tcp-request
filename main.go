@@ -2,16 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
+	"net"
 	"os"
 )
 
-func main() {
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "REQUEST URI: %s\n", r.RequestURI)
-		fmt.Fprintf(w, "REQUEST HOST HEADER: %s\n", r.Host)
-	})
+// This app dumps raw TCP requests to the logs.
+// All requests fail with a 502 from gorouter, because it's a raw TCP listener.
+// Contact: slevine@pivotal.io
 
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handler))
+func main() {
+	l, err := net.Listen("tcp", ":"+os.Getenv("PORT"))
+	if err != nil {
+		panic(err)
+	}
+	defer l.Close()
+	fmt.Println("Listening.")
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			panic(err)
+		}
+		go handleRequest(conn)
+	}
+}
+
+func handleRequest(conn net.Conn) {
+	buf := make([]byte, 1024)
+	_, err := conn.Read(buf)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	fmt.Println(string(buf))
+	conn.Write([]byte("HTTP/1.1 200 OK\n\n"))
+	conn.Write(buf)
+	conn.Close()
 }
